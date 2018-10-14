@@ -59,5 +59,5 @@ app.use('/', require('./routers/main'))
 mongoose.connect('mongodb://localhost/node-blog', { useNewUrlParser: true });
 
 app.listen(3000, function () {
-  console.log('http://localhost:3000')
+  console.log('http://localhost:3000') 
 })
