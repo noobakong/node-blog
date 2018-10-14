@@ -53,7 +53,7 @@ mongoose.connect('mongodb://localhost/node-blog');
 - 功能逻辑
 - 页面展示
 
-### 用户注册
+### 注册 登录 登出
 #### userSchema
 *新建并编写 schemas/user.js*
 ```javascript
@@ -73,7 +73,7 @@ module.exports = new mongoose.Schema({
 *模型创建*
 新建并编写 models/user.js
 
-#### 首页开发
+#### 注册
 
 静态页面
 
@@ -86,3 +86,30 @@ module.exports = new mongoose.Schema({
 注册逻辑
  - 表单验证
  - 数据库验证
+ - 前台 ajax
+
+ #### 登录
+
+ 处理 前端ajax注册
+ 后台api路由
+
+ 注册逻辑
+ - 表单验证
+ - 数据库验证
+ - 前台 ajax
+      页面渲染
+
+#### cookies
+  app 引入 cookies模块
+  在 api.js 中获取 cookies
+  在 app.js 中解析登录用户的cookies
+  用 swig 渲染模板控制 index页面
+
+#### 登出
+
+ajax --》   api.js --> cookies设置为空 -> 刷新页面
+
+#### 中文用户名登录异常
+
+原因 cookies在存储中午时出现乱码
+解决办法 将username进行转码再解码

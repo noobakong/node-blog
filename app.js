@@ -4,8 +4,9 @@ var swig = require('swig')
 var app = express()
 var mongoose = require('mongoose')
 var bodyParser = require('body-parser')
+var Cookies = require('cookies')
 
-
+var User = require('./models/user')
 //设置swig页面不缓存
 swig.setDefaults({
   cache: false
@@ -15,6 +16,29 @@ swig.setDefaults({
 app.use(bodyParser.urlencoded({ extended: true }))
 // parse application/json
 app.use(bodyParser.json())
+
+// 设置cookies
+app.use((req, res, next) => {
+  req.cookies = new Cookies(req, res)
+
+  // 解析登录用户的cookies
+  req.userInfo = {}
+  if (req.cookies.get('userInfo')) {
+    try {
+      req.userInfo = JSON.parse(req.cookies.get('userInfo'))
+
+      // 获取用户是否是管理员
+      User.findById(req.userInfo._id).then((userInfo) => {
+        req.userInfo.isAdmin = Boolean(userInfo.isAdmin)
+        next()
+      })
+    } catch (e) {
+      next()
+    }
+  } else {
+    next()
+  }
+})
 
 // 静态文件托管
 app.use('/public', express.static(__dirname + '/public'))

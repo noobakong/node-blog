@@ -45,6 +45,7 @@
       
     </div>
     <aside class="user_list">
+      {% if !userInfo._id %}
       <div class="user_form">
         <div class="user_tab j_userTab">
           <span class="user_cur">登录</span>
@@ -53,11 +54,11 @@
         <div id="login" class="user_login">
           <div class="user_input">
             <i class="iconfont">&#xe60d;</i>
-            <input type="text" placeholder="请输入用户名">
+            <input type="text" placeholder="请输入用户名" name="username">
           </div>
           <div class="user_input margin_bottom0">
             <i class="iconfont">&#xe6c6;</i>
-            <input type="password" placeholder="请输入密码">
+            <input type="password" placeholder="请输入密码" name="password">
           </div>
           <p class="user_err"><span>用户名不能为空</span></p>
           <p class="user_login_btn">登 录</p>
@@ -80,9 +81,15 @@
           <p class="user_register_btn">注 册</p>
         </div>
       </div>
-      <div class="user_logined">
-        <p class="user_welcome">欢迎，<i>jamesSky</i></p>
-        <span class="user_loginOut">退出</span>
+      
+      {% else %}
+      <div id="user_logined">
+        <div class="user_tab j_userTab">
+          <span class="discuss_title">用户信息</span>
+        </div>
+        <p class="user_welcome">欢迎，<i>{{userInfo.username}}</i></p>
+        <span class="user_loginOut" id="logout">退出</span>
+        
       </div>
       <div class="friendly_link">
         <div class="user_tab">
@@ -92,6 +99,7 @@
           <a href="http:www.zhihu.com">知乎</a>
         </div>
       </div>
+      {%endif%}
       <p class="user_no">您是本网站的第<i>12</i>位访客祝您生活工作愉快</p>
       <p class="copy_right">京ICP备17059284号-1</p>
     </aside>

@@ -14,7 +14,7 @@ router.use(function (req, res, next) {
   next()
 })
 
-/* 
+/*
 注册：
   注册逻辑
   1. 用户名不能为空
@@ -32,13 +32,13 @@ router.post('/user/register', function (req, res, next) {
 // -------表单简单验证-----------
   if (username == '') {
     responseData.code = 1
-    responseData.message = '用户名不能为空'
+    responseData.message = '不填用户名啊你'
     res.json(responseData)
     return
   }
   if (password == '') {
     responseData.code = 2
-    responseData.message = '密码不能为空'
+    responseData.message = '密码不填？'
     res.json(responseData)
     return
   }
@@ -68,13 +68,54 @@ router.post('/user/register', function (req, res, next) {
     })
     return user.save()
   }).then((newUserInfo) => {
-    console.log(newUserInfo)
-    responseData.message = '注册成功'
+    responseData.message = '耶~ 注册成功'
     res.json(responseData)
   })
 // -------------------------------
 
 })
 
+// 登录逻辑处理
+router.post('/user/login', (req, res) => {
+  var username = req.body.username
+  var password = req.body.password
+  console.log(req.body)
+  if (username == '' || password == '') {
+    responseData.code = 1
+    responseData.message = '去填完再点登录'
+    res.json(responseData)
+    return
+  }
 
+// 查询数据库用户名密码同时存在
+  User.findOne({
+    username: username,
+    password: password
+  }).then((userInfo) => {
+    if (!userInfo) {
+      responseData.code = 2
+      responseData.message = '用户名或密码错啦'
+      res.json(responseData)
+      return
+    }
+    // 正确 登录成功
+    responseData.message = '耶~ 登录成功'
+    responseData.userInfo = {
+      _id: userInfo._id,
+      username: userInfo.username
+    }
+    req.cookies.set('userInfo', JSON.stringify({
+      _id: userInfo._id,
+      username: escape(userInfo.username)
+    }))
+    res.json(responseData)
+  })
+})
+
+
+// 退出登录
+router.get('/user/logout', (req, res) => {
+  req.cookies.set('userInfo', null)
+  res.json(responseData)
+})
 module.exports = router

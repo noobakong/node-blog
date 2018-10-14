@@ -288,7 +288,7 @@ header{
     margin-left: 2px;
     margin-right: 2px;
 }
-.user_logined{
+#user_logined{
     background: #ffffff;
     -webkit-box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
@@ -296,7 +296,7 @@ header{
     margin-top: 20px; 
     display: inline-block;  
     width: 100%; 
-    display: none;   
+    /* display: none;    */
 }
 .user_welcome{
     width: 220px;
