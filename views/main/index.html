@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <!-- <link rel="stylesheet" href="/public/css/util.css"> -->
+  <link rel="stylesheet" href="/public/css/util.css">
   <link rel="stylesheet" href="/public/css/main.css">
   <link href="/public/css/bootstrap.min.css" rel="stylesheet">
   <title>博客首页</title>
@@ -18,11 +18,10 @@
         <img src="public/image/logo.png" alt="" />
       </a>
       <nav class="head_nav">
-        <a href="javascript:void(0);">javascript</a>
-        <a href="javascript:void(0);">css3</a>
-        <a href="javascript:void(0);">html5</a>
-        <a href="javascript:void(0);">杂记</a>
-        <a href="javascript:void(0);">about</a>
+        <a href="/">首页</a>
+        {% for cate in categories%}
+        <a href="/?category={{cate.id}}">{{cate.name}}</a>
+        {% endfor %}
       </nav>
     </div>
   </header>
@@ -31,20 +30,43 @@
     <h2></h2>
   </div>
   <div class="center">
+    {% for content in contents %}
     <div class="article_list">
-
       <a class="article_item" href="javascript:viod(0);">
-        <h3>js设计模式-(职责链模式)【17】</h3>
+        <h3>{{content.title}}</h3>
+        <p class="info">
+          <span>作者: <i>{{content.user.username}}</i></span>
+          <span>点击: <i>{{content.views}}</i></span>
+          <span>评论: <i>3</i></span>
+        </p>
         <div class="article_main">
-          <p class="article_content ellipsis_4">不知不觉已经过了几个年轮，昨天还有伙伴说模块化的时候，自己饶有兴致的翻开之前的seajs，requirejs，并且哒哒哒了一堆，然后又莫名失落，估计好多人都早已废弃这些东西，开启了各自mvvm实践之路。哈哈，总是这么多愁善感。</p>
+          <p class="article_content ellipsis_4">{{content.description}}</p>
         </div>
         <div class="article_tag">
-          <span>javascript</span>
-          <i>2017-03-27</i>
+          <span>{{content.category.name}}</span>
+          <i>{{content.addTime|date('Y-m-d H:i:s', -8*60)}}</i>
         </div>
       </a>
-      
     </div>
+    {% endfor %}
+
+    {% if pages > 1 %}
+    <nav aria-label="..." id="pager_dh">
+      <ul class="pager">
+        {% if page <=1 %}
+        <li class="previous"><span href="#"><span aria-hidden="true">&larr;</span>没有上一页了</span></li>
+        {%else%}
+        <li class="previous"><a href="/?category={{category}}&page={{page-1}}"><span aria-hidden="true">&larr;</span>上一页</a></li>
+        {%endif%}
+        <span class="page_text">{{page}} / {{pages}}</span>
+        {% if page >=pages %} 
+        <li class="next"><span href="#">没有下一页了<span aria-hidden="true">&rarr;</span></li>
+        {%else%}
+          <li class="next"><a href="/?category={{category}}&page={{page+1}}">下一页<span aria-hidden="true">&rarr;</span></a></li>
+        {%endif%}
+      </ul>
+    </nav>
+    {%endif%}
     <aside class="user_list">
       {% if !userInfo._id %}
       <div class="user_form">
@@ -89,7 +111,7 @@
           <span class="discuss_title">用户信息</span>
         </div>
         {% if userInfo.isAdmin %}
-        <p class="user_welcome">你好，管理员</p>
+        <p class="user_welcome">你好，<i>管理员</i></p>
         <a href="/admin" class="indexbtn btn btn-primary">进入管理</a>
         {% else %}
         <p class="user_welcome">欢迎，<i>{{userInfo.username}}</i></p>
@@ -110,6 +132,8 @@
       <p class="copy_right">京ICP备17059284号-1</p>
     </aside>
   </div>
+
+
   <script src="public/js/jquery-3.3.1.min.js"></script>
   <script src="public/js/main.js"></script>
 </body>

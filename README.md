@@ -1,4 +1,4 @@
-## node-blog
+##  node-blog
 
 ### 初始化
 #### 创建目录
@@ -322,3 +322,447 @@ category_add.html
   ```
 
   通过判断 渲染 error 或者 success 的页面 两个页面都在 `admin/error.html` 和 `admin/success.html` 中
+
+#### 分类首页展示
+
+​	同用户管理首页展示一样
+
+```javascript
+/*
+分类首页 
+ */
+router.get('/category', (req, res) => {
+  var page = Number(req.query.page || 1)
+  var pages = 0
+  var limit = 10
+
+  Category.count().then((count) => {
+    // 计算总页数
+    pages = Math.ceil(count / limit)
+    // 取值不能超过 pages
+    page = Math.min(page, pages)
+    // 取值不能小于1
+    page = Math.max(page, 1)
+    var skip = (page - 1) * limit
+
+    Category.find().limit(limit).skip(skip).then((categories) => {
+      res.render('admin/category_index', {
+        userInfo: req.userInfo,
+        categories: categories,
+        page: page,
+        pages: pages,
+        count: count,
+        limit: limit
+      })
+    })
+  })
+})
+
+```
+
+#### 分类修改 删除
+
+在渲染的分类首页的分类表格中
+
+```html
+      <td>
+        <a href="/admin/category/edit?id={{category._id.toString()}}" class="btn btn btn-primary">修改</a>
+        <a href="/admin/category/delete?id={{category._id.toString()}}" class="btn btn-danger">删除</a>
+      </td>
+```
+
+同过query的传值分类的id 值 我们来操作id
+
+- 修改
+
+  get
+
+  ```javascript
+  /* 
+   分类修改 get
+   */
+  router.get('/category/edit', (req, res) => {
+    // 获取要修改的分类信息 表单形式展现出来
+    
+    var id = req.query.id || ''
+    // 获取修改的分类信息
+    Category.findById(id).then((category) => {
+      if (!category) {
+        res.render('admin/error', {
+          userInfo: req.userInfo,
+          message: '分类信息不存在'
+        })
+        return Promise.reject()
+      } else {
+        res.render('admin/category_edit', {
+          userInfo: req.userInfo,
+          category: category
+        })
+      }
+    })
+  })
+  ```
+
+  post
+
+  ```javascript
+  /* 
+   分类修改 post
+   */
+  router.post('/category/edit', (req, res) => {
+    var id = req.query.id || ''
+    var name = req.body.name || ''
+
+    Category.findById(id).then((category) => {
+      if (!category) {
+        res.render('admin/error', {
+          userInfo: req.userInfo,
+          message: '分类信息不存在'
+        })
+        return Promise.reject()
+      } else {
+        // 当前用户没有做任何修改而提交
+        if (name == category.name) {
+          res.render('admin/success', {
+            userInfo: req.userInfo,
+            message: '修改成功',
+            url: '/admin/category'
+          })
+          return Promise.reject()
+        } else {
+          // 要修改的分类名称是否已经在数据库中
+          return Category.findOne({
+            // id 不等于当前的id
+            _id: {$ne: id},
+            name: name
+          })
+        }
+      }
+    }).then((sameCategory) => {
+      if (sameCategory) {
+        res.render('admin/error', {
+          userInfo: req.userInfo,
+          message: '已存在同名分类'
+        })
+        return Promise.reject()
+      } else {
+        return Category.findByIdAndUpdate(id, {
+          name: name
+        })
+      }
+    }).then(() => {
+      res.render('admin/success', {
+        userInfo: req.userInfo,
+        message: '修改分类名称成功',
+        url: '/admin/category'
+      })
+    })
+  })
+  ```
+
+- 删除
+
+  ```javascript
+  /* 
+   分类删除
+   */
+  router.get('/category/delete', (req, res) => {
+    // 获取id
+    var id = req.query.id || ''
+
+    Category.remove({
+      _id: id
+    }).then(() => {
+      res.render('admin/success', {
+        userInfo: req.userInfo,
+        message: '删除成功',
+        url: '/admin/category'
+      })
+    })
+  })
+  ```
+
+  ​
+
+#### 前台分类与排序
+
+#### 内容管理 -内容首页和内容添加
+
+```javascript
+/* 
+内容首页
+ */
+router.get('/content', (req, res) => {
+  res.render('admin/content_index', {
+    userInfo: req.userInfo
+  })
+})
+
+/* 
+内容添加
+ */
+router.get('/content/add', (req, res) => {
+
+  Category.find().sort({_id: -1}).then((categories) => {
+    console.log(categories)
+    res.render('admin/content_add', {
+      userInfo: req.userInfo,
+      categories: categories
+    })
+  })
+})
+```
+
+#### 内容提交保存
+
+- 新建 schemas/content.js 和 models/content.js 建立content模型
+
+- 处理路由
+
+  post
+
+  后台
+
+  ```javascript
+     // 保存内容到数据库
+     new Content({
+       category: req.body.category,
+       title: req.body.title,
+       description: req.body.description,
+       content: req.body.content
+     }).save().then((content) => {
+       res.render('admin/success', {
+         userInfo: req.userInfo,
+         message: '内容保存成功',
+         url: '/admin/content'
+       })
+     })
+   })
+  ```
+
+####  内容管理首页
+
+同分类首页一样 渲染
+
+#### 关于内容分类的表关联关系
+
+```javascript
+module.exports = new mongoose.Schema({
+  title: {
+    type: String
+  },
+
+  // 引用 关联字段
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    //引用 另外一张表的模型
+    ref: 'Category'
+  },
+
+  description: {
+    type: String,
+    default: ''
+  },
+  content: {
+    type: String,
+    default: ''
+  }
+})
+```
+
+我们在 处理 content 的 category的时候 关联个 另外一个结构表
+
+在渲染页面的时候用mongoose 中提供搞得  populate() 方法
+
+
+
+#### 内容修改
+
+```javascript
+/*
+ 修改内容 
+  */
+router.get('/content/edit', (req, res) => {
+  // 获取要修改的内容信息 表单形式展现出来
+
+  var id = req.query.id || ''
+
+  var categories = []
+  // 获取分类信息
+  Category.find().sort({ _id: -1 })
+  .then((result) => {
+    categories = result
+    return Content.findById(id).populate('category')
+  })
+  .then((content) => {
+    console.log(content)
+    if (!content) {
+      res.render('admin/error', {
+        userInfo: req.userInfo,
+        message: '指定内容不存在'
+      })
+      return Promise.reject()
+    } else {
+      res.render('admin/content_edit', {
+        userInfo: req.userInfo,
+        content: content,
+        categories: categories
+      })
+    }
+  })
+
+```
+
+#### 内容保存
+
+```javascript
+/*
+   内容修改
+   */
+  router.post('/content/edit', function(req, res) {
+    var id = req.query.id || ''
+    
+    if (req.body.title == '') {
+      res.render('admin/error', {
+        userInfo: req.userInfo,
+        message: '标题不能为空'
+      })
+      return
+    }
+
+    if (req.body.description == '' || req.body.content == '') {
+      res.render('admin/error', {
+        userInfo: req.userInfo,
+        message: '简介和内容不能为空'
+      })
+      return
+    }
+
+    Content.findByIdAndUpdate(id, {
+      category: req.body.category,
+      title: req.body.title,
+      description: req.body.description,
+      content: req.body.content
+    }).then(() => {
+      res.render('admin/success', {
+        userInfo: req.userInfo,
+        message: '内容保存成功',
+        url: '/admin/content'
+      })
+    })
+
+  })
+  
+})
+```
+
+#### 内容删除
+
+```javascript
+/* 
+内容删除
+*/
+router.get('/content/delete', (req, res) => {
+  // 获取id
+  var id = req.query.id || ''
+
+  Content.remove({
+    _id: id
+  }).then(() => {
+    res.render('admin/success', {
+      userInfo: req.userInfo,
+      message: '删除成功',
+      url: '/admin/content'
+    })
+  })
+})
+```
+
+#### 添加一些文章 信息  -- 作者 创建时间 点击量
+
+作者  -- 关联 user表 
+
+创建时间 -- new Date() 
+
+​	前台渲染
+
+```html
+<td>{{content.addTime|date('Y-m-d H:i:s', -8*60)}}</td>
+```
+
+点击量 --》 先默认为 0 
+
+
+
+### 前台相关
+
+> 有了后台的数据，我们接下来看前台的
+
+修改 main.js
+
+```javascript
+/*
+首页渲染 
+ */
+router.get('/', function (req, res, next) {
+  req.userInfo.username = unescape(req.userInfo.username)
+
+  var data = {
+    userInfo: req.userInfo,
+    categories: [],
+    contents: [],
+    count: 0,
+    page : Number(req.query.page || 1),
+    pages : 0,
+    limit : 10
+  }
+  
+  Category.find()
+    .then((categories) => {
+      data.categories = categories
+      return Content.count()
+  })
+    .then((count) => {
+      data.count = count
+      // 计算总页数
+      data.pages = Math.ceil(data.count / data.limit)
+      // 取值不能超过 pages
+      data.page = Math.min(data.page, data.pages)
+      // 取值不能小于1
+      data.page = Math.max(data.page, 1)
+      var skip = (data.page - 1) * data.limit
+
+      return Content
+        .find()
+        .sort({ addTime: -1 })
+        .limit(data.limit)
+        .skip(skip)
+        .populate(['category', 'user'])
+    })
+    .then((contents) => {
+      data.contents = contents
+      console.log(data)
+      res.render('main/index', data)
+    })
+})
+```
+
+#### 完善首页细节 改为后台传来的data显示
+
+
+
+#### 设置分页
+
+
+
+####content 创建时间的问题
+
+我们创建addTime的时候，会发现mongod创建的数据的时间戳完全一样
+
+我们不能使用`new date()`来创建默认时间 使用 `Date.now`
+
+
+
+#### 处理分类点击跳转
+
+ 
