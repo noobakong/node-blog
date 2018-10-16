@@ -3,22 +3,34 @@ var router = express.Router()
 var Category = require('../models/categories')
 var Content = require('../models/content')
 
+var data = {}
+// 通用数据
+router.use((req,res, next) => {
+  data = {
+    userInfo: req.userInfo,
+    categories: []
+  }
+
+  Category.find()
+    .then((categories) => {
+      data.categories = categories
+      next()
+    })
+})
+
 /*
 首页渲染 
  */
 router.get('/', function (req, res, next) {
   req.userInfo.username = unescape(req.userInfo.username)
+  
+  data.category= req.query.category || ''
+  data.contents= []
+  data.count= 0
+  data.page = Number(req.query.page || 1)
+  data.pages = 0
+  data.limit = 5
 
-  var data = {
-    userInfo: req.userInfo,
-    category: req.query.category || '',
-    categories: [],
-    contents: [],
-    count: 0,
-    page : Number(req.query.page || 1),
-    pages : 0,
-    limit : 5
-  }
   
   // 分类筛选条件
   var where = {}
@@ -26,11 +38,8 @@ router.get('/', function (req, res, next) {
     where.category = data.category
   }
 
-  Category.find()
-    .then((categories) => {
-      data.categories = categories
-      return Content.where(where).count()
-  })
+
+Content.where(where).count()
     .then((count) => {
       data.count = count
       // 计算总页数
@@ -52,10 +61,23 @@ router.get('/', function (req, res, next) {
     })
     .then((contents) => {
       data.contents = contents
-      console.log(data)
+      // console.log(data)
       res.render('main/index', data)
     })
 })
 
+// 详情
+router.get('/view',(req, res) => {
+  req.userInfo.username = unescape(req.userInfo.username)
+  var contentId = req.query.contentid || ''
+  Content.findById(contentId)
+    .then((content) => {
+      data.content = content
+      content.views++
+      content.save()
+      console.log(data)
+      res.render('main/detail', data)
+    })
+})
 
 module.exports = router

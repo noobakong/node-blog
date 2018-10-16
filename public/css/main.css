@@ -54,19 +54,19 @@ header{
 .head_nav a:hover{
     color: rgba(255,255,255,1);
 }
-.article_list{
+.main_left{
     width: 690px;
     display: inline-block;
     -webkit-box-shadow: 6px 8px 6px 2px rgba(74, 128, 196, 0.1);
     box-shadow: 6px 8px 6px 2px rgba(74, 128, 196, 0.1);
     margin: 30px 0;
 }
-.article_list .info span {
+.main_left .info span {
     margin-right: 10px;
     font-weight: 600;
     color: #839ea7;
 }
-.article_list .info span i {
+.main_left .info span i {
     color: #337ab7;
     font-weight: 700;
 }
@@ -163,7 +163,7 @@ header{
     font-weight: bold;
     text-shadow: 5px 5px 5px black, 0px 0px 2px black;
 }
-.user_list{
+.main_right{
     width: 250px;
     position: absolute;
     display: inline-block;
@@ -336,6 +336,11 @@ header{
     width: 700px;
     margin: 0 auto;
 }
+
+.comment_main{
+    width: 700px;
+    margin-left: 466px;
+}
 .detail_title{
     font-size: 24px;
     line-height: 40px;
@@ -345,6 +350,7 @@ header{
     font-weight: 600;
 }
 .detail_content{
+    padding-right: 20px;
     font-size: 16px;
     line-height: 30px;
 }
@@ -370,8 +376,7 @@ header{
     -webkit-box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     border-radius: 4px;
-    width: 430px;
-    float: left;
+    width: 700px;
     display: inline-block;
     margin: 30px 0;
     padding: 0 0 30px 0;
@@ -396,7 +401,7 @@ header{
 }
 .discuss_main{
     display: inline-block;
-    width: 400px;
+    width: 600px;
     margin: 20px 15px;
 }
 .discuss_default{
@@ -454,4 +459,9 @@ header{
     position: relative;
     font-weight: 700;
     top: 8px;
+}
+
+#inactive {
+    border-bottom:4px solid #337ab7;
+    padding-bottom:35px;
 }

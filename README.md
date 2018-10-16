@@ -765,4 +765,38 @@ router.get('/', function (req, res, next) {
 
 #### 处理分类点击跳转
 
- 
+ where 查询
+
+
+
+#### 分类高亮显示
+
+```html
+      <nav class="head_nav">
+        {% if category == ''%}
+        <a href="/" id="inactive">首页</a>
+        {%else%}
+        <a href="/">首页</a>
+        {%endif%}
+
+        {% for cate in categories%}
+          {% if category == cate.id%}
+          <a href="/?category={{cate.id}}" id="inactive">{{cate.name}}</a>
+          {%else%}
+          <a href="/?category={{cate.id}}">{{cate.name}}</a>
+          {%endif%}
+        {% endfor %}
+      </nav>
+```
+
+
+
+### 详情页
+
+#### 整理页面
+
+
+
+#### ajax提交评论
+
+> ajax的操作都封装在了 routers/api.js 中

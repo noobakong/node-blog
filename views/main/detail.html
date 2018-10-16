@@ -1,0 +1,52 @@
+{% extends 'layout.html'%}
+
+{% block content%}
+<div class="detail_main">
+    <h2 class="detail_title">{{content.title}}</h2>
+    <p class="info">
+        <span>作者: <i>{{content.user.username}}</i></span>
+        <span>点击: <i>{{content.views}}</i></span>
+        <span>评论: <i>3</i></span>
+    </p>
+    <p class="detail_tag">
+        <span>{{content.addTime|date('Y-m-d H:i:s', -8*60)}}</span>
+        <span>{{content.category.name}}</span>
+    </p>
+    <div class="detail_content">
+        <p>{{content.content}}</p>
+    </div>
+
+</div>
+{%endblock%}
+
+{% block comments%}
+<div class="detail_discuss">
+    <div class="comment_main">
+        <div class="discuss">
+            <div class="user_tab">
+                <span class="discuss_title">评论</span>
+            </div>
+            <div class="discuss_main">
+                <div class="discuss_content">
+                    <ul class="discuss_list">
+                        <!-- <li>
+                            <p class="discuss_user"><span>一只打柴沟</span><i>发表于 2018-02-03</i></p>
+                            <div class="discuss_userMain">
+                                哈哈哈，你这个渣渣～
+                            </div>
+                        </li> -->
+                    </ul>
+                    {% if !userInfo._id %}
+                    <p class="discuss_default">您还没有登录，只有登录才能回复～</p>
+                    {% else %}
+                    <textarea id="commentContent" class="discuss_input" name="" id="" cols="30" rows="10">请在这写下评论～</textarea>
+                    <input type="hidden" id="contentId" value="{{content.id}}">
+                    <button class="btn btn-primary" id="commentBtn">提交</button>
+                    {%endif%}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/public/js/comments.js"></script>
+{%endblock%}
