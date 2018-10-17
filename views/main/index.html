@@ -3,7 +3,7 @@
 
 {% block banner%}
   <div class="center banner">
-    <img src="public/image/banner.jpg" alt="">
+    <img src="public/image/fish.png" alt="">
     <h2></h2>
   </div>
 {%endblock%}
@@ -15,7 +15,7 @@
   <p class="info">
     <span>作者: <i>{{content.user.username}}</i></span>
     <span>点击: <i>{{content.views}}</i></span>
-    <span>评论: <i>3</i></span>
+    <span>评论: <i>{{content.comments.length}}</i></span>
   </p>
   <div class="article_main">
     <p class="article_content ellipsis_4">{{content.description}}</p>

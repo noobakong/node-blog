@@ -800,3 +800,4 @@ router.get('/', function (req, res, next) {
 #### ajax提交评论
 
 > ajax的操作都封装在了 routers/api.js 中
+

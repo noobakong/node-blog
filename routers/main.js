@@ -2,6 +2,7 @@ var express = require('express')
 var router = express.Router()
 var Category = require('../models/categories')
 var Content = require('../models/content')
+var Pagemessage = require('../models/pagemessage')
 
 var data = {}
 // 通用数据
@@ -10,6 +11,13 @@ router.use((req,res, next) => {
     userInfo: req.userInfo,
     categories: []
   }
+  //访问量
+  Pagemessage.findById('5bc6f9853afec4413c4a87b2')
+    .then((pagemessage) => {
+      pagemessage.visiter++
+      pagemessage.save()
+      data.visiters = pagemessage.visiter
+    })
 
   Category.find()
     .then((categories) => {
@@ -17,6 +25,7 @@ router.use((req,res, next) => {
       next()
     })
 })
+
 
 /*
 首页渲染 
@@ -31,7 +40,7 @@ router.get('/', function (req, res, next) {
   data.pages = 0
   data.limit = 5
 
-  
+
   // 分类筛选条件
   var where = {}
   if (data.category) {
@@ -69,13 +78,12 @@ Content.where(where).count()
 // 详情
 router.get('/view',(req, res) => {
   req.userInfo.username = unescape(req.userInfo.username)
-  var contentId = req.query.contentid || ''
-  Content.findById(contentId)
+  var contentid = req.query.contentid || ''
+  Content.findById(contentid).populate('user')
     .then((content) => {
       data.content = content
       content.views++
       content.save()
-      console.log(data)
       res.render('main/detail', data)
     })
 })

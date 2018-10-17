@@ -2,11 +2,14 @@
 body {
     width: 100%;
     height: 100%;
+    background-image: url('../image/timg.jpg');
+    background-size: cover;
+    --bgcolor: #f8f5f881;
 }
 .center{
     height: 100%;
     width: 960px;
-    margin: 0 auto;
+    margin-left: 23%;
     position: relative;
 }
 header{
@@ -17,7 +20,7 @@ header{
     padding-top: 12px;
     padding-bottom: 12px;
     color: rgba(255, 255, 255, 0.75);
-    background-color: #839ea7;
+    background-color: #839ea7b4;
     font-size: 17px;
     font-weight: 800;
 }
@@ -55,11 +58,14 @@ header{
     color: rgba(255,255,255,1);
 }
 .main_left{
+    min-height: 600px;
     width: 690px;
     display: inline-block;
     -webkit-box-shadow: 6px 8px 6px 2px rgba(74, 128, 196, 0.1);
     box-shadow: 6px 8px 6px 2px rgba(74, 128, 196, 0.1);
     margin: 30px 0;
+    background: var(--bgcolor);
+    border-radius: 10px;
 }
 .main_left .info span {
     margin-right: 10px;
@@ -72,13 +78,14 @@ header{
 }
 .article_item{
     display: inline-block;
-    width: 650px;
+    width: 680px;
     padding: 20px;
     position: relative;
+    border-bottom: 2px solid rgba(160, 187, 160, 0.815);
 }
 .article_item:after{
     content: "";
-    width: 650px;
+    width: 680px;
     position: absolute;
     height: 1px;
     background: #e1e4e8;
@@ -150,13 +157,15 @@ header{
     position: relative;
 }
 .banner img{
+    position: relative;
+    left: -35%;
     width: 100%;
     height: 100%;
 }
 .banner h2{
     position: absolute;
     top: 100px;
-    left: 100px;
+    left: 50%;
     font-size: 60px;
     line-height: 85px;
     height: 85px;
@@ -171,7 +180,7 @@ header{
     top: 0;
 }
 .user_form{
-    background: #ffffff;
+    background: var(--bgcolor);
     -webkit-box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     border-radius: 4px;
@@ -266,7 +275,7 @@ header{
     margin-bottom: 0px;
 }
 .friendly_link{
-    background: #ffffff;
+    background: var(--bgcolor);
     -webkit-box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     border-radius: 4px;
@@ -304,11 +313,11 @@ header{
     margin-right: 2px;
 }
 #user_logined{
-    background: #ffffff;
+    background: var(--bgcolor);
     -webkit-box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
     border-radius: 4px;
-    margin-top: 20px; 
+    margin-top: 30px; 
     display: inline-block;  
     width: 100%; 
     /* display: none;    */
@@ -334,12 +343,12 @@ header{
 /*  detail  */
 .detail_main{
     width: 700px;
-    margin: 0 auto;
+    margin-left: 25px;
 }
 
 .comment_main{
-    width: 700px;
-    margin-left: 466px;
+    width: 690px;
+    margin-left: 23%;
 }
 .detail_title{
     font-size: 24px;
@@ -366,17 +375,16 @@ header{
 .detail_discuss{
     width: 100%;
     display: inline-block;
-    background: #ebf3fb;
     min-width: 700px;
-    margin-top: 60px;
+    margin-top: 10px;
     clear: both;
 }
 .discuss{
-    background: #ffffff;
-    -webkit-box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
-    box-shadow: 0 1px 3px 0 rgba(32, 62, 100, 0.1);
+    background: var(--bgcolor);
+-webkit-box-shadow: 6px 8px 6px 2px rgba(74, 128, 196, 0.1);
+    box-shadow: 6px 8px 6px 2px rgba(74, 128, 196, 0.1);
     border-radius: 4px;
-    width: 700px;
+    width: 690px;
     display: inline-block;
     margin: 30px 0;
     padding: 0 0 30px 0;
@@ -409,6 +417,7 @@ header{
     text-align: center;
     padding: 20px 0;
 }
+
 .discuss_list{
     width: 100%;
 }
@@ -424,6 +433,7 @@ header{
     font-weight: 600;
 }
 .discuss_user i{
+    float: right;
     margin-left: 10px;
     color: #8590a6;
     font-size: 12px;
@@ -437,7 +447,7 @@ header{
     margin-top: 6px;
 }
 .discuss_input{
-    width: 92%;
+    width: 100%;
     padding: 10px 4%;
     height: 72px;
     font-size: 14px;
@@ -464,4 +474,8 @@ header{
 #inactive {
     border-bottom:4px solid #337ab7;
     padding-bottom:35px;
+}
+
+.user_tab span.discuss_count {
+    float: right;
 }

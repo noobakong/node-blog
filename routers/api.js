@@ -79,7 +79,6 @@ router.post('/user/register', function (req, res, next) {
 router.post('/user/login', (req, res) => {
   var username = req.body.username
   var password = req.body.password
-  console.log(req.body)
   if (username == '' || password == '') {
     responseData.code = 1
     responseData.message = '去填完再点登录'

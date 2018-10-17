@@ -32,8 +32,9 @@ module.exports = new mongoose.Schema({
   },
   content: {
     type: String,
-    default: ''
+    default: '',
   },
+
 
   // 评论
   comments: {

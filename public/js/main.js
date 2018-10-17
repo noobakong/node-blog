@@ -66,7 +66,7 @@ $(function () {
     // });
 
     // 打字效果
-    var str = 'ming zhao hu niu bi ';
+    var str = 'Noobakong\'blog';
     var i = 0;
     function typing() {
         var divTyping = $('.banner h2');

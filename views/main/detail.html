@@ -6,7 +6,7 @@
     <p class="info">
         <span>作者: <i>{{content.user.username}}</i></span>
         <span>点击: <i>{{content.views}}</i></span>
-        <span>评论: <i>3</i></span>
+        <span>评论: <i>{{content.comments.length}}</i></span>
     </p>
     <p class="detail_tag">
         <span>{{content.addTime|date('Y-m-d H:i:s', -8*60)}}</span>
@@ -25,28 +25,34 @@
         <div class="discuss">
             <div class="user_tab">
                 <span class="discuss_title">评论</span>
+                <span class="discuss_count">一共有<i id="discuss_count">0</i>条评论</span>
             </div>
             <div class="discuss_main">
                 <div class="discuss_content">
                     <ul class="discuss_list">
-                        <!-- <li>
-                            <p class="discuss_user"><span>一只打柴沟</span><i>发表于 2018-02-03</i></p>
-                            <div class="discuss_userMain">
-                                哈哈哈，你这个渣渣～
-                            </div>
-                        </li> -->
                     </ul>
+                    {% if !pages %}
+                    <ul class="pager">
+                        <li class="previous"><a href="#">上一页</a></li>
+                        <li></li>
+                        <li class="next"><a href="#">下一页</a></li>
+                    </ul>
+                    {%else%}
+                    {%endif%}
+
                     {% if !userInfo._id %}
                     <p class="discuss_default">您还没有登录，只有登录才能回复～</p>
                     {% else %}
                     <textarea id="commentContent" class="discuss_input" name="" id="" cols="30" rows="10">请在这写下评论～</textarea>
-                    <input type="hidden" id="contentId" value="{{content.id}}">
-                    <button class="btn btn-primary" id="commentBtn">提交</button>
+                    <button class="btn btn-primary" id="commentBtn" style="width:100%">提交</button>
                     {%endif%}
+                    <input type="hidden" id="contentId" value="{{content.id}}">
                 </div>
             </div>
         </div>
     </div>
+
 </div>
+
 <script src="/public/js/comments.js"></script>
 {%endblock%}
