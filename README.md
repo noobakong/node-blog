@@ -1,5 +1,24 @@
 ##  node-blog
 
+### 主要展示
+
+- index
+
+  ![首页](http://pd92xwp9t.bkt.clouddn.com/image/notes/Node-nodeblog-index.png)
+
+
+
+- 详情页
+
+  ![详情页](http://pd92xwp9t.bkt.clouddn.com/image/notes/Node-nodeblog-detail.png)
+
+  ​
+
+
+- 后台
+
+  ![后台管理](http://pd92xwp9t.bkt.clouddn.com/image/notes/Node-nodeblog-admin.png)
+
 ### 初始化
 #### 创建目录
 #### 装包
