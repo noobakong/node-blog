@@ -6,9 +6,13 @@ var mongoose = require('mongoose')
 var bodyParser = require('body-parser')
 var Cookies = require('cookies')
 
+
+
 var User = require('./models/user')
 //设置swig页面不缓存
 swig.setDefaults({
+  allowErrors: false,
+  autoescape: true,
   cache: false
 })
 

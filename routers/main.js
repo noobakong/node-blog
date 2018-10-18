@@ -3,6 +3,8 @@ var router = express.Router()
 var Category = require('../models/categories')
 var Content = require('../models/content')
 var Pagemessage = require('../models/pagemessage')
+var markdown = require("markdown").markdown
+
 
 var data = {}
 // 通用数据
@@ -69,6 +71,12 @@ Content.where(where).count()
         .populate(['category', 'user'])
     })
     .then((contents) => {
+      //解析 markdown 为 html
+      contents.forEach(function (itme) {
+        itme.content = markdown.toHTML(itme.content)
+        itme.title = markdown.toHTML(itme.title)
+        itme.description = markdown.toHTML(itme.description)
+      })
       data.contents = contents
       // console.log(data)
       res.render('main/index', data)
@@ -80,11 +88,16 @@ router.get('/view',(req, res) => {
   req.userInfo.username = unescape(req.userInfo.username)
   var contentid = req.query.contentid || ''
   Content.findById(contentid).populate('user')
-    .then((content) => {
-      data.content = content
+    .then((content) => {  
       content.views++
-      content.save()
-      res.render('main/detail', data)
+      data.content = content
+      content.save().then((content) => {
+        // markdown
+        data.content.content = markdown.toHTML(content.content)
+        data.content.title = markdown.toHTML(content.title)
+        res.render('main/detail', data)
+
+      })
     })
 })
 

@@ -47,41 +47,48 @@ function renderComment (toLaster) {
   $('#discuss_count').html(comments.length)
 
   var $lis = $('.pager li')
-  var pages = Math.ceil(comments.length / limit)
+  pages = Math.ceil(comments.length / limit)
   if (!toLaster) {
     var start = (page-1) * limit
   } else {
     var start = (pages - 1) * limit
-  }
-  var end = (start + limit) > comments.length ? Math.max(1,comments.length) : (start + limit)
-
-
-  $lis.eq(1).html(page + '/' + pages )
-
-  if (page <= 1) {
-    page = 1
-    $lis.eq(0).html('<span>已是最前一页</span>')
-  } else {
-    $lis.eq(0).html('<a href="javacript:void(0);">上一页</a>')
-  }
-
-  if (page >= pages) {
     page = pages
-    $lis.eq(2).html('<span>已是最后一页</span>')
-  } else {
-    $lis.eq(2).html('<a href="javacript:void(0);">下一页</a>')
   }
+  var end = (start + limit) > comments.length ? comments.length : (start + limit)
+  if (pages <= 1) {
+    $('.pager').hide()
+  } else {
+    $('.pager').show()
+    $lis.eq(1).html(page + '/' + pages )
+  
+    if (page <= 1) {
+      page = 1
+      $lis.eq(0).html('<span>已是最前一页</span>')
+    } else {
+      $lis.eq(0).html('<a href="javacript:void(0);">上一页</a>')
+    }
+  
+    if (page >= pages) {
+      page = pages
+      $lis.eq(2).html('<span>已是最后一页</span>')
+    } else {
+      $lis.eq(2).html('<a href="javacript:void(0);">下一页</a>')
+    }
+  }
+
 
   var html = ''
-  for (var i = start; i < end; i++) {
-    html += `
-      <li>
-          <p class="discuss_user"><span>${comments[i].username}</span><i>发表于 ${formatDate(comments[i].postTime)}</i></p>
-          <div class="discuss_userMain">
-              ${comments[i].content}
-          </div>
-      </li>
-    `
+  if (comments.length) {
+    for (var i = start; i < end; i++) {
+      html += `
+        <li>
+            <p class="discuss_user"><span>${comments[i].username}</span><i>发表于 ${formatDate(comments[i].postTime)}</i></p>
+            <div class="discuss_userMain">
+                ${comments[i].content}
+            </div>
+        </li>
+      `
+    }
   }
 
   $('.discuss_list').html(html)

@@ -1,6 +1,7 @@
 {% extends 'layout.html'%}
 
 {% block content%}
+{% autoescape %}
 <div class="detail_main">
     <h2 class="detail_title">{{content.title}}</h2>
     <p class="info">
@@ -17,6 +18,7 @@
     </div>
 
 </div>
+{% endautoescape %}
 {%endblock%}
 
 {% block comments%}
@@ -31,14 +33,12 @@
                 <div class="discuss_content">
                     <ul class="discuss_list">
                     </ul>
-                    {% if !pages %}
+
                     <ul class="pager">
                         <li class="previous"><a href="#">上一页</a></li>
                         <li></li>
                         <li class="next"><a href="#">下一页</a></li>
                     </ul>
-                    {%else%}
-                    {%endif%}
 
                     {% if !userInfo._id %}
                     <p class="discuss_default">您还没有登录，只有登录才能回复～</p>

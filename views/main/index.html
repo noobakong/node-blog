@@ -9,6 +9,7 @@
 {%endblock%}
 
 {%block content%}
+{% autoescape %}
 {% for content in contents %}
 <a class="article_item" href="/view?contentid={{content.id}}">
   <h3>{{content.title}}</h3>
@@ -26,6 +27,7 @@
   </div>
 </a>
 {% endfor %}
+{% endautoescape %}
 {%endblock%}
 
 {% block pages%}
