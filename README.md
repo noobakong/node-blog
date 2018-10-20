@@ -1,6 +1,31 @@
-##  node-blog
+##  Node-Blog
 
-### 主要展示
+> 后端使用node写的一个一整套的博客系统
+
+ #### 主要功能
+
+ - 登录
+ - 注册
+ - 发表文章
+ - 编辑/删除文章
+ - 添加/删除/编辑文章分类
+ - 账号的管理
+ - 评论功能
+ - ...
+
+#### 所用技术
+
+- node
+
+
+- express
+- swig渲染模板
+- body-parser中间件
+- cookies
+- mongod(mongoose) 数据库
+- html css js ajax等
+
+#### 主要页面展示
 
 - index
 
@@ -19,13 +44,45 @@
 
   ![后台管理](http://pd92xwp9t.bkt.clouddn.com/image/notes/Node-nodeblog-admin.png)
 
-### 初始化
-#### 创建目录
-#### 装包
-#### 创建基本app服务
+### 一、项目初始化
+#### 1.1 创建目录 
 
-### 开发开始
-#### 模板使用 swig
+├─models  *存放数据库数据模型*
+├─public   *存放静态资源*
+├─routers  *路由文件*
+├─schemas *数据库Schema表*
+└─views *静态页面*
+
+│  .gitignore *github仓库上传忽略文件*
+│  app.js *主程序入口文件*
+│  package-lock.json 
+│  package.json
+│  README.md
+
+#### 1.2 装包
+
+使用npm安装项目要使用的包
+
+#### 1.3 创建基本app服务
+
+```javascript
+var express = require('express')
+var mongoose = require('mongoose')
+
+var app = express()
+
+// 连接数据库
+mongoose.connect('mongodb://localhost/node-blog', { useNewUrlParser: true });
+
+app.listen(3000, function () {
+  console.log('http://localhost:3000') 
+})
+```
+
+
+
+### 二、开发开始
+#### 2.1 模板使用 swig
 ```javascript
 // 定义模板引擎
 app.engine('html', swig.renderFile)
@@ -34,31 +91,121 @@ app.set('views', './views')
 // 注册模板引擎
 app.set('view engine', 'html')
 
-// res.render(文件) 渲染模板文件
+//设置swig页面不缓存
+swig.setDefaults({
+  allowErrors: false,
+  autoescape: true,
+  cache: false
+})
 ```
 
-#### 静态文件托管
+#### 2.2 静态文件托管
 
 ```javascript
 // 静态文件托管
-app.use('/public', express.static(__dirname + '/public'))
+app.use('/public', express.static(__dirname + '/public')
 ```
 
-#### 连接数据库
+**知识点1：在 Express 中提供静态文件**
+
+> 为了提供诸如图像、CSS 文件和 JavaScript 文件之类的静态文件，请使用 Express 中的 `express.static` 内置中间件函数。
+
+```javascript
+app.use(express.static('public'));
+```
+
+这样后 我们就可以访问public文件中的任意目录的任意文件：
+
+```
+http://localhost:3000/images/kitten.jpg
+http://localhost:3000/css/style.css
+http://localhost:3000/js/app.js
+```
+
+**注意：** Express 相对于静态目录查找文件，因此**静态目录的名称不是此 URL 的一部分**。
+
+可以多次使用static函数开启多个静态资源入口。
+
+**自定义文件目录名称**
+
+上面的例子中我们可以访问 `http://localhost:3000/js/app.js`这个目录 但是如果我想通过`http://localhost:3000/static/js/app.js`来访问，我们可以使用：
+
+```javascript
+app.use('/static', express.static('public'));
+```
+
+来创建虚拟路径前缀（路径并不实际存在于文件系统中）
+
+当然，在项目中一般使用绝对路径来保证代码的可行性：
+
+``` javascript
+app.use('/static', express.static(__dirname + '/public'));
+```
+
+#### 2.3 连接数据库
+
 ```javascript
 // 连接数据库
-mongoose.connect('mongodb://localhost/node-blog');
+mongoose.connect('mongodb://localhost/node-blog' { useNewUrlParser: true });
 ```
 
-#### 分模块开发与实现
+mongod会在第一个数据创建的时候新建我们的node-blog数据库，不需要我们手动创建
+
+后面的一个配置项最好加上。不报错的话可不加。
+
+#### 2.4 分模块开发与实现
 
 ##### 路由
 - 前台模块 main模块
   * / 首页
   * / 内容页
 - 后台管理模块 admin模块
-
 - API模块 api模块
+
+```javascript
+// 路由
+app.use('/admin', require('./routers/admin'))
+app.use('/api', require('./routers/api'))
+app.use('/', require('./routers/main'))
+```
+
+**知识点2：express.Router的使用**
+
+> 使用 `express.Router` 类来创建可安装的模块化路由处理程序。`Router` 实例是完整的中间件和路由系统；因此，常常将其称为“微型应用程序”。
+
+使用express.Router，可以将路由更加模块化
+
+比如：在 routers文件夹下新建 main.js
+
+```javascript
+var express = require('express')
+var router = express.Router()
+...
+
+router.get('/', function (req, res, next) {
+    ...
+}
+
+router.get('/view',(req, res) => {
+    ...
+}
+    
+module.exports = router
+```
+
+> 末尾使用module.exports = router 将router对象暴露出去
+
+我们将其安装在主应用程序app.js的路径中
+
+```javascript
+...
+app.use('/', require('./routers/main'))
+...
+```
+
+此时的  ‘/’ 路径请求的就是 main.js中的 ’/‘
+
+/view --> main.js 中的 '/view'
 
 ##### 开发顺序
 功能模块开发顺序
@@ -72,8 +219,9 @@ mongoose.connect('mongodb://localhost/node-blog');
 - 功能逻辑
 - 页面展示
 
-### 注册 登录 登出
-#### userSchema
+### 三、注册 登录 登出
+#### 3.1 userSchema创建
+
 *新建并编写 schemas/user.js*
 ```javascript
 var mongoose = require('mongoose')
@@ -89,16 +237,200 @@ module.exports = new mongoose.Schema({
 })
 ```
 
-*模型创建*
-新建并编写 models/user.js
+#### 3.2 创建User model
 
-#### 注册
+```javascript
+var mongoose = require('mongoose')
+var userSchema = require('../schemas/user')
 
-静态页面
+module.exports = mongoose.model('User', userSchema)
+```
 
-处理 前端ajax注册
 
-后台api路由
+
+**知识点3：mongoose中的 Schema 和 Model**
+
+> Mongoose 的一切始于 Schema。每个 schema 都会映射到一个 MongoDB collection ，并定义这个collection里的文档的构成
+
+[关于schema的官方文档](https://cn.mongoosedoc.top/docs/guide.html)
+
+- 定义一个schema
+
+  ```javascript
+    var mongoose = require('mongoose');
+    var Schema = mongoose.Schema;
+
+    var blogSchema = new Schema({
+      title:  String,
+      author: String,
+      body:   String,
+      comments: [{ body: String, date: Date }],
+      date: { type: Date, default: Date.now },
+      hidden: Boolean,
+      meta: {
+        votes: Number,
+        favs:  Number
+      }
+    });
+  ```
+
+- 创建一个model
+
+  > 我们要把 schema 转换为一个 [Model](https://cn.mongoosedoc.top/docs/models.html)， 使用 `mongoose.model(modelName, schema)` 函数：
+
+  ```javascript
+    var Blog = mongoose.model('Blog', blogSchema);
+  ```
+
+  [Models](https://cn.mongoosedoc.top/docs/api.html#model-js) 是从 `Schema` 编译来的构造函数。 它们的实例就代表着可以从数据库保存和读取的 [documents](https://cn.mongoosedoc.top/docs/documents.html)。 从数据库创建和读取 document 的所有操作都是通过 model 进行的。
+
+  第一个参数是跟 model 对应的集合（ collection ）名字的 *单数* 形式。 **Mongoose 会自动找到名称是 model 名字 复数形式的 collection** 。 对于上例，Blog这个 model 就对应数据库中 **blogs** 这个 collection。`.model()` 这个函数是对 `schema` 做了拷贝（生成了 model）。 
+
+  >  你要确保在调用 `.model()` 之前把所有需要的东西都加进 `schema` 里了
+
+  一个model就是创造了一个mongoose实例，我们才能将其操控。
+
+  *我的片面理解把Schema和model的关系 想成 构造函数和实例之间的关系*
+
+#### 3.3 注册
+
+1. **静态页面**
+
+2. **处理 前端ajax注册**
+
+   ```javascript
+       // 注册
+       $register.find('.user_register_btn').on('click', function () {
+           $.ajax({
+               type: 'post',
+               url: 'api/user/register',
+               data: {
+                   username: $register.find('[name="username"]').val(),
+                   password: $register.find('[name="password"]').val(),
+                   repassword: $register.find('[name="repassword"]').val()
+               },
+               dataType: 'json',
+               success: function (result) {
+                   $register.find('.user_err').html(result.message)
+
+                   if (!result.code) {
+                       setTimeout(() => {
+                           $('.j_userTab span')[0].click()
+                       }, 1000)
+                   }
+               }
+           })
+       })
+   ```
+
+3. **后台api路由**
+
+   >  在api.js中编写后台注册相关代码
+
+   ```javascript
+   /*
+   注册：
+     注册逻辑
+     1. 用户名不能为空
+     2. 密码不能为空
+     3. 两次密码一致
+
+     数据库查询
+     1. 用户名是否已经被注册
+   */
+   router.post('/user/register', function (req, res, next) {
+     var username = req.body.username
+     var password = req.body.password
+     var repassword = req.body.repassword
+
+   // -------表单简单验证-----------
+     if (username == '') {
+       responseData.code = 1
+       responseData.message = '不填用户名啊你'
+       res.json(responseData)
+       return
+     }
+     if (password == '') {
+       responseData.code = 2
+       responseData.message = '密码不填？'
+       res.json(responseData)
+       return
+     }
+     if (password !== repassword ) {
+       responseData.code = 3
+       responseData.message = '两次密码不一致啊'
+       res.json(responseData)
+       return
+     }
+   // -------------------------------
+
+   // -------数据库验证验证-----------
+     User.findOne({
+       username: username
+     }).then((userInfo) => {
+       if (userInfo) {
+         // 数据库中已有用户
+         responseData.code = 4
+         responseData.message = '用户名有了，去换一个'
+         res.json(responseData)
+         return
+       }
+       // 保存用户注册信息
+       var user = new User({
+         username: username,
+         password: password
+       })
+       return user.save()
+     }).then((newUserInfo) => {
+       responseData.message = '耶~ 注册成功'
+       res.json(responseData)
+     })
+   // -------------------------------
+
+   })
+   ```
+
+   后台通过简单的验证，将结果通过 `res.json` 的方式来返还给 前台 ajax 再通过json信息来处理页面展示。
+
+   ​
+
+   **知识点4：使用`body-parser`中间件来处理post请求**
+
+   > [关于express的更多中间件](https://expressjs.com/zh-cn/resources/middleware.html)
+
+   使用案例
+
+   ```javascript
+   var express = require('express')
+   var bodyParser = require('body-parser')
+
+   var app = express()
+
+   // parse application/x-www-form-urlencoded
+   app.use(bodyParser.urlencoded({ extended: false }))
+
+   // parse application/json
+   app.use(bodyParser.json())
+   ```
+
+   通过以上的配置，我们就可以获取通过 req.body 来获取 post 请求总的参数了
+
+   ```javascript
+   ...
+     var username = req.body.username
+     var password = req.body.password
+     var repassword = req.body.repassword
+   ...
+   ```
+
+   **知识点5: mongoose中数据库的操作**
+
+   前段时间总结过一些mongoose的增删查操作笔记：
+
+   ​	[node中的mongodb和mongoose](https://noobakong.gitee.io/2018/10/06/node%E4%B8%AD%E7%9A%84mongodb%E5%92%8Cmongoose/)
+
+   ​
+
   post请求解析 -- body-parser
   在app.js 内配置 body-parser
 

@@ -19,51 +19,7 @@ $(function () {
     var $login = $('#login')
     var $register = $('#register')
     var $userInfo = $('#user_logined')
-    // $('.user_login_btn').on('click',function(){
-    //     if( $login.find('.user_input').eq(0).find('input').val().trim() == '' ){
-    //         $login.find('.user_err span').text('用户名不能为空').show();
-    //         return false;
-    //     }
-    //     if( !reg.test($login.find('.user_input').eq(0).find('input').val().trim()) ){
-    //         $login.find('.user_err span').text('用户名不能含有特殊字符').show();
-    //         return false;
-    //     }
-    //     if( $login.find('.user_input').eq(1).find('input').val().trim() == '' ){
-    //         $login.find('.user_err span').text('密码不能为空').show();
-    //         return false;
-    //     }
-    //     if( !reg.test($login.find('.user_input').eq(1).find('input').val().trim()) ){
-    //         $login.find('.user_err span').text('密码不能含有特殊字符').show();
-    //         return false;
-    //     }
-    //     $login.find('.user_err span').text('').hide();
-    // });
 
-    // $('.user_register_btn').on('click',function(){
-    //     if( $register.find('.user_input').eq(0).find('input').val().trim() == '' ){
-    //         $register.find('.user_err span').text('用户名不能为空').show();
-    //         return false;
-    //     }
-    //     if( !reg.test($register.find('.user_input').eq(0).find('input').val().trim()) ){
-    //         $register.find('.user_err span').text('用户名不能含有特殊字符').show();
-    //         return false;
-    //     }
-    //     if( $register.find('.user_input').eq(1).find('input').val().trim() == '' ){
-    //         $register.find('.user_err span').text('密码不能为空').show();
-    //         return false;
-    //     }
-    //     if( !reg.test($register.find('.user_input').eq(1).find('input').val().trim()) ){
-    //         $register.find('.user_err span').text('密码不能含有特殊字符').show();
-    //         return false;
-    //     }
-    //     if( $register.find('.user_input').eq(1).find('input').val().trim() != 
-    //         $register.find('.user_input').eq(2).find('input').val().trim()
-    //     ){
-    //         $register.find('.user_err span').text('两次输入的密码不一致').show();
-    //         return false;
-    //     }
-    //     $register.find('.user_err span').text('').hide();
-    // });
 
     // 打字效果
     var str = 'Noobakong\'blog';
