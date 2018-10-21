@@ -294,6 +294,12 @@ module.exports = mongoose.model('User', userSchema)
 
 #### 3.3 注册
 
+注册逻辑
+
+- 表单验证
+- 数据库验证
+- 前台 ajax
+
 1. **静态页面**
 
 2. **处理 前端ajax注册**
@@ -431,51 +437,172 @@ module.exports = mongoose.model('User', userSchema)
 
    ​
 
-  post请求解析 -- body-parser
-  在app.js 内配置 body-parser
+ #### 3.4 登录
 
-注册逻辑
- - 表单验证
- - 数据库验证
- - 前台 ajax
+1. **前台ajax**
 
- #### 登录
+   ```javascript
+   // 登录
+       $login.find('.user_login_btn').on('click', function () {
+           $.ajax({
+               type: 'post',
+               url: 'api/user/login',
+               data: {
+                   username: $login.find('[name="username"]').val(),
+                   password: $login.find('[name="password"]').val(),
+               },
+               dataType: 'json',
+               success: function (result) {
+                   $login.find('.user_err').html(result.message)
+                   // 登录成功
+                   if (!result.code) {
+                       window.location.reload()
+                   }
+               }
+           })
+       })
+   ```
 
- 处理 前端ajax注册
- 后台api路由
+2. **后台路由处理及数据库查询**
 
- 注册逻辑
- - 表单验证
- - 数据库验证
- - 前台 ajax
-      页面渲染
+   ```javascript
+   // 登录逻辑处理
+   router.post('/user/login', (req, res) => {
+     var username = req.body.username
+     var password = req.body.password
+     if (username == '' || password == '') {
+       responseData.code = 1
+       responseData.message = '去填完再点登录'
+       res.json(responseData)
+       return
+     }
 
-#### cookies
-  app 引入 cookies模块
-  在 api.js 中获取 cookies
-  在 app.js 中解析登录用户的cookies
-  用 swig 渲染模板控制 index页面
+   // 查询数据库用户名密码同时存在
+     User.findOne({
+       username: username,
+       password: password
+     }).then((userInfo) => {
+       if (!userInfo) {
+         responseData.code = 2
+         responseData.message = '用户名或密码错啦'
+         res.json(responseData)
+         return
+       }
+       // 正确 登录成功
+       responseData.message = '耶~ 登录成功'
+       responseData.userInfo = {
+         _id: userInfo._id,
+         username: userInfo.username
+       }
+       req.cookies.set('userInfo', JSON.stringify({
+         _id: userInfo._id,
+         username: escape(userInfo.username)
+       }))
+       res.json(responseData)
+     })
+   })
+   ```
 
-#### 登出
+#### 3.5 cookies
+
+> 上面的案例中，为了记录我们的登录状态，我们使用了第三发包 -- cookies 来存储登录信息
+
+1. **app 引入 cookies模块**
+
+   ```javascript
+   var Cookies = require('cookies')
+   ```
+
+2. **在 api.js 中获取 cookies**
+
+   ```javascript
+   req.cookies.set('userInfo', JSON.stringify({
+         _id: userInfo._id,
+         username: escape(userInfo.username)
+       }))
+   ```
+
+   ​
+
+3. **在 app.js 中解析登录用户的cookies**  
+
+   ```javascript
+   // 设置cookies
+   app.use((req, res, next) => {
+     req.cookies = new Cookies(req, res)
+
+     // 解析登录用户的cookies
+     req.userInfo = {}
+     if (req.cookies.get('userInfo')) {
+       try {
+         req.userInfo = JSON.parse(req.cookies.get('userInfo'))
+
+         // 获取用户是否是管理员
+         User.findById(req.userInfo._id).then((userInfo) => {
+           req.userInfo.isAdmin = Boolean(userInfo.isAdmin)
+           next()
+         })
+       } catch (e) {
+         next()
+       }
+     } else {
+       next()
+     }
+   }
+   ```
+
+4. **用 swig 渲染模板控制 index页面**
+
+#### 3.6登出
 
 ajax --》   api.js --> cookies设置为空 -> 刷新页面
 
-#### 中文用户名登录异常
+登出的实现就比较简单，只需将cookies设置为空即可
+
+1. **前台ajax**
+
+   ```javascript
+       // 登出
+       $('#logout').on('click', function () {
+           $.ajax({
+               url: '/api/user/logout',
+               success: function(result) {
+                   if (!result.code) {
+                       window.location.reload()
+                   }
+               }
+           })
+       })
+   ```
+
+2. **api路由**
+
+   ```javascript
+   // 退出登录
+   router.get('/user/logout', (req, res) => {
+     req.cookies.set('userInfo', null)
+     res.json(responseData)
+   })
+   ```
+
+#### 3.7 中文用户名登录异常
 
 原因 cookies在存储中午时出现乱码
 解决办法 将username进行转码再解码
 
-#### 区分管理员 
+使用    `encode` 和  `decode` 来进 编码和解码
+
+#### 3.8 区分管理员 
 
 给userInfo 添加 isAdmin 属性
 
 使用swig 选择渲染
 
-### 后台管理
+### 四、后台管理
 
-#### bootstrap 模板建立页面
+#### 4.1 bootstrap 模板建立页面
 
-#### 使用继承模板
+#### 4.2 使用继承模板
 
 公用的继承
 
@@ -496,7 +623,7 @@ ajax --》   api.js --> cookies设置为空 -> 刷新页面
 {% endblock%}
 ```
 
-#### admin 首页
+admin 首页
 
 ```javascript
 // 首页
@@ -507,13 +634,55 @@ router.get('/', (req, res, next) => {
 })
 ```
 
-#### admin/user 用户管理
+#### 4.3 admin/user 用户管理
 
 - 建立静态 user_index.html
 
-- 处理路由
+- 处理路由及分页逻辑
 
-- 读取数据库中所有用户数据
+  ```javascript
+  // 用户管理
+  router.get('/user', (req, res) => {
+
+    /*
+    从数据库中读取所有的用户数据
+     limit(number) 限制获取的数据条数
+     skip(number) 忽略数据的条数
+      每页显示 5 条
+      第一页： 1-5  skip：0  -> (当前页 1 - 1) * 每页的条数
+      第二页： 6-10 skip：5  -> (当前页 2 - 1) * 每页的条数
+      ...
+      ...
+      User.count() 查询总数据量
+     */
+    var page = Number(req.query.page || 1)
+    var pages = 0
+    var limit = 10
+
+    User.count().then((count) => {
+      // 计算总页数
+      pages = Math.ceil(count / limit)
+      // 取值不能超过 pages
+      page = Math.min(page, pages)
+      // 取值不能小于1
+      page = Math.max(page, 1)
+      var skip = (page - 1) * limit
+  	
+      // 读取数据库中所有用户数据
+      User.find().limit(limit).skip(skip).then((users) => {
+        res.render('admin/user_index', {
+          userInfo: req.userInfo,
+          users: users,
+          page: page,
+          pages: pages,
+          count: count,
+          limit: limit
+        })
+      })
+    })
+    
+  })
+  ```
 
 - 页面展示 --table表格
 
@@ -604,23 +773,25 @@ router.get('/', (req, res, next) => {
 
   - 抽取page 使用 include 语法以后复用  
 
-#### 分类首页
+#### 4.4 文章分类相关
 
-category_index.html
+1. **分类首页**
 
-#### 添加分类
+   category_index.html
 
-category_add.html
+2. 添加分类
 
-- get 渲染页面
+   category_add.html
 
-- post 提交页面
+	- get 渲染页面
 
-  - 设计表结构
+	- post 提交页面
+
+  	- 设计表结构
     schemas/categories.js
     models/categories.js
 
-- 相关代码
+	- 相关代码
 
   ```javascript
   /*
@@ -674,9 +845,9 @@ category_add.html
 
   通过判断 渲染 error 或者 success 的页面 两个页面都在 `admin/error.html` 和 `admin/success.html` 中
 
-#### 分类首页展示
+3. **首页展示展示**
 
-​	同用户管理首页展示一样
+   > 同用户管理首页展示一样
 
 ```javascript
 /*
@@ -711,9 +882,9 @@ router.get('/category', (req, res) => {
 
 ```
 
-#### 分类修改 删除
+4. **分类修改 删除**
 
-在渲染的分类首页的分类表格中
+   在渲染的分类首页的分类表格中加入
 
 ```html
       <td>
@@ -722,7 +893,7 @@ router.get('/category', (req, res) => {
       </td>
 ```
 
-同过query的传值分类的id 值 我们来操作id
+通过query的传值分类的id 值 我们来操作id
 
 - 修改
 
@@ -835,9 +1006,7 @@ router.get('/category', (req, res) => {
 
   ​
 
-#### 前台分类与排序
-
-#### 内容管理 -内容首页和内容添加
+#### 4.5 内容管理 -内容首页和内容添加
 
 ```javascript
 /* 
@@ -864,7 +1033,7 @@ router.get('/content/add', (req, res) => {
 })
 ```
 
-#### 内容提交保存
+#### 4.6内容提交保存
 
 - 新建 schemas/content.js 和 models/content.js 建立content模型
 
@@ -891,11 +1060,7 @@ router.get('/content/add', (req, res) => {
    })
   ```
 
-####  内容管理首页
-
-同分类首页一样 渲染
-
-#### 关于内容分类的表关联关系
+#### 4.7 关于内容分类的表关联关系
 
 ```javascript
 module.exports = new mongoose.Schema({
@@ -925,9 +1090,55 @@ module.exports = new mongoose.Schema({
 
 在渲染页面的时候用mongoose 中提供搞得  populate() 方法
 
+**知识点6： mongoose中的表关联**
+
+> Population 可以自动替换 document 中的指定字段，替换内容从其他 collection 获取。 我们可以填充（populate）单个或多个 document、单个或多个纯对象，甚至是 query 返回的一切对象
+
+简单的说，A表的可以关联B表，通过调用A表的属性数据取到B表内容的值，就像sql的join的聚合操作一样。
+
+```javascript
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
+var personSchema = Schema({
+  _id: Schema.Types.ObjectId,
+  name: String,
+  age: Number,
+  stories: [{ type: Schema.Types.ObjectId, ref: 'Story' }]
+});
+
+var storySchema = Schema({
+  author: { type: Schema.Types.ObjectId, ref: 'Person' },
+  title: String,
+  fans: [{ type: Schema.Types.ObjectId, ref: 'Person' }]
+});
+
+var Story = mongoose.model('Story', storySchema);
+var Person = mongoose.model('Person', personSchema);
+```
+
+我们创建了Story 和 Person两个数据库实例。
+
+`Person` model 的 `stories` 字段设为 `ObjectId`数组。 `ref` 选项告诉 Mongoose 在填充的时候使用哪个 model，本例中为 `Story` model。 
+
+接下来我们使用 [Population](https://cn.mongoosedoc.top/docs/populate.html#population) 来填充使用
+
+```javascript
+Story.
+  findOne({ title: 'Casino Royale' }).
+  populate('author').
+  exec(function (err, story) {
+    if (err) return handleError(err);
+    console.log('The author is %s', story.author.name);
+    // prints "The author is Ian Fleming"
+  });
+```
+
+更多高级用法： [Mongoose Populate](https://cn.mongoosedoc.top/docs/populate.html)
 
 
-#### 内容修改
+
+#### 4.8 内容修改
 
 ```javascript
 /*
@@ -964,7 +1175,7 @@ router.get('/content/edit', (req, res) => {
 
 ```
 
-#### 内容保存
+#### 4.9 内容保存
 
 ```javascript
 /*
@@ -1007,7 +1218,7 @@ router.get('/content/edit', (req, res) => {
 })
 ```
 
-#### 内容删除
+#### 4. 10内容删除
 
 ```javascript
 /* 
@@ -1045,7 +1256,7 @@ router.get('/content/delete', (req, res) => {
 
 
 
-### 前台相关
+### 五、前台相关
 
 > 有了后台的数据，我们接下来看前台的
 
@@ -1098,15 +1309,34 @@ router.get('/', function (req, res, next) {
 })
 ```
 
-#### 完善首页细节 改为后台传来的data显示
 
 
+#### 5.1 完善首页细节 改为后台传来的data显示
 
-#### 设置分页
+使用swig的渲染模板 完善页面信息，不在赘述
 
+#### 5.2 设置分页
 
+```html
+{% if pages > 1 %}
+<nav aria-label="..." id="pager_dh">
+  <ul class="pager">
+    {% if page <=1 %} <li class="previous"><span href="#"><span aria-hidden="true">&larr;</span>没有上一页了</span></li>
+      {%else%}
+      <li class="previous"><a href="/?category={{category}}&page={{page-1}}"><span aria-hidden="true">&larr;</span>上一页</a></li>
+      {%endif%}
+      <span class="page_text">{{page}} / {{pages}}</span>
+      {% if page >=pages %}
+      <li class="next"><span href="#">没有下一页了<span aria-hidden="true">&rarr;</span></li>
+      {%else%}
+      <li class="next"><a href="/?category={{category}}&page={{page+1}}">下一页<span aria-hidden="true">&rarr;</span></a></li>
+      {%endif%}
+  </ul>
+</nav>
+{%endif%}
+```
 
-####content 创建时间的问题
+####5.3 content 创建时间的问题
 
 我们创建addTime的时候，会发现mongod创建的数据的时间戳完全一样
 
@@ -1114,13 +1344,20 @@ router.get('/', function (req, res, next) {
 
 
 
-#### 处理分类点击跳转
+#### 5.4 处理分类点击跳转
 
- where 查询
+```javascript
+  var where = {}
+  if (data.category) {
+    where.category = data.category
+  }
+```
+
+ mongoose查询的时候使用 `where` 查询
 
 
 
-#### 分类高亮显示
+#### 5.5 分类高亮显示
 
 ```html
       <nav class="head_nav">
@@ -1140,19 +1377,55 @@ router.get('/', function (req, res, next) {
       </nav>
 ```
 
+#### 5.6 评论相关
 
-
-### 详情页
-
-#### 整理页面
-
-### 评论相关
-
-#### 评论使用ajax来操作
+**评论使用ajax来操作**
 
 > 使用ajax操作不刷新页面来操作api
 
-#### 评论代码
+**后台api代码**
+
+```javascript
+/*
+进入详情获取评论
+ */
+router.get('/comment/post', (req, res) => {
+  var contentid = req.query.contentid
+  Content.findById(contentid)
+    .then((content) => {
+      responseData.data = content.comments
+      res.json(responseData)
+    })
+})
+
+/*
+评论提交 
+ */
+router.post('/comment/post', (req, res) => {
+  var contentid = req.body.contentid
+  var postData = {
+    username: req.userInfo.username,
+    postTime: Date.now(),
+    content: req.body.content
+  }
+
+  // 查询文章内容信息
+  Content.findById(contentid)
+    .then((content) => {
+      content.comments.push(postData)
+      return content.save()
+    })
+    .then((newContent) => {
+      responseData.message = '评论成功!'
+      responseData.data = newContent
+      res.json(responseData)
+    })
+})
+```
+
+
+
+**评论代码**
 
 > ajax的操作都封装在了 routers/api.js 中
 
@@ -1261,5 +1534,12 @@ function formatDate(d) {
 }
 ```
 
+### 六、总结
 
+项目这个阶段知识简单能跑痛而已，包括细节的优化，和程序的安全性都没有考虑，安全防范措施为零，这也是以后要学习的地方。
 
+第一次使用node写后台，完成了一次前后端的完整交互，最终要的还是做后台的一种思想，一种处理前后台关系的逻辑。
+
+收获了很多，越来越感觉自己要学的东西太多了，自己好菜。。 
+
+写总结文档有点累唉   _(°:з」∠)_秃头。
