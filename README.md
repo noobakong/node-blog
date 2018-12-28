@@ -29,20 +29,20 @@
 
 - index
 
-  ![首页](http://pd92xwp9t.bkt.clouddn.com/image/notes/Node-nodeblog-index.png)
+  ![首页](https://blog-1257919906.cos.ap-guangzhou.myqcloud.com/image/notes/Node-nodeblog-index.png)
 
 
 
 - 详情页
 
-  ![详情页](http://pd92xwp9t.bkt.clouddn.com/image/notes/Node-nodeblog-detail.png)
+  ![详情页](https://blog-1257919906.cos.ap-guangzhou.myqcloud.com/image/notes/Node-nodeblog-detail.png)
 
   ​
 
 
 - 后台
 
-  ![后台管理](http://pd92xwp9t.bkt.clouddn.com/image/notes/Node-nodeblog-admin.png)
+  ![后台管理](https://blog-1257919906.cos.ap-guangzhou.myqcloud.com/image/notes/Node-nodeblog-admin.png)
 
 ### 一、项目初始化
 #### 1.1 创建目录 
